@@ -70,4 +70,5 @@ SELECT h.holiday, SUM(e.Quantity * UnitPrice) AS total_revenue
 FROM ecom_raw e LEFT JOIN holiday_raw h
 ON e.date = h.date 
 WHERE h.year = '2011'
-GROUP BY h.holiday;
+GROUP BY h.holiday
+ORDER BY total_revenue DESC;
