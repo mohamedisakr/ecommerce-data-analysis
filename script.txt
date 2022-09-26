@@ -1,16 +1,16 @@
 -- create ecommerce table 
-CREATE TABLE ecom_raw 
+CREATE TABLE ecom_raw
 (
-  Id NUMERIC(10,0),
-  InvoiceNo NUMERIC(10,0),
-  StockCode NUMERIC(10,0),
-  Description VARCHAR(128),
-  Quantity NUMERIC(10,0),
-  UnitPrice NUMERIC(14,2),
-  CustomerID NUMERIC(10,0),
-  Country VARCHAR(100),
-  Date DATE,
-  Hour NUMERIC(3,0)
+Id NUMERIC(10,0),
+InvoiceNo VARCHAR(50),
+StockCode VARCHAR(50),
+Description VARCHAR(250),
+Quantity NUMERIC(10,0),
+UnitPrice NUMERIC(14,2),
+CustomerID VARCHAR(50),
+Country VARCHAR(200),
+Date DATE,
+Hour NUMERIC(3,0)
 );
 
 
@@ -18,7 +18,7 @@ CREATE TABLE ecom_raw
 
 
 -- load ecommerce data from CSV file
-\copy xy_raw(x,y) FROM '03-Techniques.csv' WITH DELIMITER ',' CSV;
+COPY ecom_raw FROM 'E:\Projects\ecommerce-data-analysis\ecommerce_raw_data.csv' DELIMITER ',' CSV NULL 'NULL' HEADER;
 
 
 
