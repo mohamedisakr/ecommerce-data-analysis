@@ -27,19 +27,47 @@ Year CHAR(4)
 
 
 -- load ecommerce data from CSV file
-COPY ecom_raw FROM 'E:\Projects\ecommerce-data-analysis\ecommerce_raw_data.csv' DELIMITER ',' CSV NULL 'NULL' HEADER;
+COPY ecom_raw FROM 'ecommerce_raw_data.csv' DELIMITER ',' CSV NULL 'NULL' HEADER;
 
 
 
 -- load holiday data from CSV file
-COPY holiday_raw FROM 'E:\Projects\ecommerce-data-analysis\US Holiday Dates (2004-2021).csv' DELIMITER ',' CSV NULL 'NULL' HEADER;
+COPY holiday_raw FROM 'US Holiday Dates (2004-2021).csv' DELIMITER ',' CSV NULL 'NULL' HEADER;
 
+-- get the ecom ALL columns
+SELECT *
+FROM ecom_raw
+LIMIT 5;
 
-
--- get the ecom columns
+-- get the ecom specific columns
 SELECT Quantity, UnitPrice, Quantity * UnitPrice AS revenue, Date 
 FROM ecom_raw
 LIMIT 5;
 
 
+-- get the holiday ALL columns
+SELECT *
+FROM holiday_raw
+WHERE Year = '2011'
+LIMIT 5;
 
+-- get the holiday specific columns
+SELECT Date, Holiday, Year 
+FROM holiday_raw
+WHERE Year = '2011';
+--LIMIT 5;
+
+
+-- join ecom & holiday
+SELECT e.Quantity, e.UnitPrice, e.Quantity * UnitPrice AS revenue, h.holiday
+FROM ecom_raw e LEFT JOIN holiday_raw h
+ON e.date = h.date 
+WHERE h.year = '2011';
+
+
+-- join & group ecom & holiday
+SELECT h.holiday, SUM(e.Quantity * UnitPrice) AS total_revenue
+FROM ecom_raw e LEFT JOIN holiday_raw h
+ON e.date = h.date 
+WHERE h.year = '2011'
+GROUP BY h.holiday;
