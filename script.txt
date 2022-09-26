@@ -11,10 +11,19 @@ CustomerID VARCHAR(50),
 Country VARCHAR(200),
 Date DATE,
 Hour NUMERIC(3,0)
-);
+); 
 
 
 -- create holiday table
+CREATE TABLE holiday_raw
+(
+Date DATE,
+Holiday	VARCHAR(50),
+WeekDay	VARCHAR(50),
+Month CHAR(2),
+Day CHAR(2),
+Year CHAR(4)
+);
 
 
 -- load ecommerce data from CSV file
@@ -23,9 +32,14 @@ COPY ecom_raw FROM 'E:\Projects\ecommerce-data-analysis\ecommerce_raw_data.csv' 
 
 
 -- load holiday data from CSV file
-\copy xy_raw(x,y) FROM '03-Techniques.csv' WITH DELIMITER ',' CSV;
+COPY holiday_raw FROM 'E:\Projects\ecommerce-data-analysis\US Holiday Dates (2004-2021).csv' DELIMITER ',' CSV NULL 'NULL' HEADER;
 
 
 
---////////////// cleaning and merging data
+-- get the ecom columns
+SELECT Quantity, UnitPrice, Quantity * UnitPrice AS revenue, Date 
+FROM ecom_raw
+LIMIT 5;
+
+
 
