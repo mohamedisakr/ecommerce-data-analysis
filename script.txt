@@ -1,3 +1,11 @@
+-- connect to postgresql
+psql -U postgres
+
+-- create user for database
+CREATE USER power WITH PASSWORD '<super secret password>';
+
+CREATE DATABASE online_retail WITH OWNER 'power' ENCODING 'UTF8';
+
 -- create ecommerce table 
 CREATE TABLE ecom_raw
 (
@@ -65,10 +73,11 @@ ON e.date = h.date
 WHERE h.year = '2011';
 
 
--- join & group ecom & holiday
-SELECT h.holiday, SUM(e.Quantity * UnitPrice) AS total_revenue
-FROM ecom_raw e LEFT JOIN holiday_raw h
-ON e.date = h.date 
+-- sum by join & group ecom & holiday
+SELECT h.holiday, ROUND(SUM(e.Quantity * UnitPrice), 2) AS total_revenue
+FROM ecom_raw e LEFT JOIN holiday_raw h ON e.date = h.date 
 WHERE h.year = '2011'
-GROUP BY h.holiday
+GROUP BY h.holiday, h.date
 ORDER BY total_revenue DESC;
+
+
