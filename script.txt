@@ -156,3 +156,14 @@ WHERE year = '2011';
  Execution Time: 0.081 ms
 (5 rows)
 */
+
+
+-- create b-tree index for date on table holiday_raw
+CREATE INDEX date_holiday_idx ON holiday_raw(date);
+
+
+-- create b-tree index for date on table ecom_raw
+CREATE INDEX date_ecom_idx ON ecom_raw(date);
+
+
+
