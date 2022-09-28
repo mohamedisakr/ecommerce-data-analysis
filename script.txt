@@ -88,12 +88,40 @@ WHERE h.year = '2011'
 GROUP BY h.holiday, h.date
 ORDER BY total_revenue DESC;
 
+/*
+ Sort  (cost=2561.68..2561.72 rows=19 width=52) (actual time=106.750..106.753 rows=11 loops=1)
+   Sort Key: (round(sum((e.quantity * e.unitprice)), 2)) DESC
+   Sort Method: quicksort  Memory: 25kB
+   ->  HashAggregate  (cost=2560.99..2561.27 rows=19 width=52) (actual time=105.508..105.517 rows=11 loops=1)
+         Group Key: h.holiday, h.date
+         Batches: 1  Memory Usage: 24kB
+         ->  Hash Join  (cost=7.51..2515.26 rows=4573 width=31) (actual time=0.125..99.433 rows=3743 loops=1)
+               Hash Cond: (e.date = h.date)
+               ->  Seq Scan on ecom_raw e  (cost=0.00..2054.01 rows=81601 width=15) (actual time=0.024..53.208 rows=81601 loops=1)
+               ->  Hash  (cost=7.28..7.28 rows=19 width=20) (actual time=0.080..0.081 rows=19 loops=1)
+                     Buckets: 1024  Batches: 1  Memory Usage: 10kB
+                     ->  Seq Scan on holiday_raw h  (cost=0.00..7.28 rows=19 width=20) (actual time=0.017..0.067 rows=19 loops=1)
+                           Filter: (year = '2011'::bpchar)
+                           Rows Removed by Filter: 323
+ Planning Time: 9.871 ms
+ Execution Time: 109.060 ms
+(16 rows)
+*/
 
--- performance for selecting date from holiday table
+-- performance for selecting date from holiday table BEFORE creating index
 explain analyze 
 SELECT holiday, date
 FROM holiday_raw
 WHERE year = '2011';
+
+/*
+ Seq Scan on holiday_raw  (cost=0.00..7.28 rows=19 width=20) (actual time=0.026..0.318 rows=19 loops=1)
+   Filter: (year ~ '2011'::text)
+   Rows Removed by Filter: 323
+ Planning Time: 0.691 ms
+ Execution Time: 0.331 ms
+(5 rows)
+*/
 
 -- using regex for selecting date from holiday table ==> worst than = ''
 explain analyze 
@@ -102,3 +130,29 @@ FROM holiday_raw
 WHERE year ~ '2011';
 
 
+-- check table and index size BEFORE creating index
+SELECT pg_relation_size('holiday_raw'), pg_indexes_size('holiday_raw');
+
+
+-- create b-tree index for year on table holiday_raw
+CREATE INDEX year_idx ON holiday_raw(year);
+
+
+-- check table and index size AFTER creating index
+SELECT pg_relation_size('holiday_raw'), pg_indexes_size('holiday_raw');
+
+
+-- performance for selecting date from holiday table AFTER creating index
+explain analyze 
+SELECT holiday, date
+FROM holiday_raw
+WHERE year = '2011';
+
+/*
+ Seq Scan on holiday_raw  (cost=0.00..7.28 rows=19 width=20) (actual time=0.018..0.067 rows=19 loops=1)
+   Filter: (year = '2011'::bpchar)
+   Rows Removed by Filter: 323
+ Planning Time: 4.533 ms
+ Execution Time: 0.081 ms
+(5 rows)
+*/
