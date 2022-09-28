@@ -80,8 +80,8 @@ WHERE h.year = '2011'
 GROUP BY h.holiday, h.date
 ORDER BY total_revenue DESC;
 
-
--- performance for sum by join & group ecom & holiday
+-- BEFORE CREATING INDEX
+-- performance for sum by join & group ecom & holiday 
 explain analyze SELECT h.holiday, ROUND(SUM(e.Quantity * UnitPrice), 2) AS total_revenue
 FROM ecom_raw e LEFT JOIN holiday_raw h ON e.date = h.date 
 WHERE h.year = '2011'
@@ -165,5 +165,33 @@ CREATE INDEX date_holiday_idx ON holiday_raw(date);
 -- create b-tree index for date on table ecom_raw
 CREATE INDEX date_ecom_idx ON ecom_raw(date);
 
+
+-- AFTER CREATING INDEX
+-- performance for sum by join & group ecom & holiday 
+explain analyze SELECT h.holiday, ROUND(SUM(e.Quantity * UnitPrice), 2) AS total_revenue
+FROM ecom_raw e LEFT JOIN holiday_raw h ON e.date = h.date 
+WHERE h.year = '2011'
+GROUP BY h.holiday, h.date
+ORDER BY total_revenue DESC;
+
+/*
+ Sort  (cost=2561.68..2561.72 rows=19 width=52) (actual time=30.141..30.144 rows=11 loops=1)
+   Sort Key: (round(sum((e.quantity * e.unitprice)), 2)) DESC
+   Sort Method: quicksort  Memory: 25kB
+   ->  HashAggregate  (cost=2560.99..2561.27 rows=19 width=52) (actual time=30.116..30.125 rows=11 loops=1)
+         Group Key: h.holiday, h.date
+         Batches: 1  Memory Usage: 24kB
+         ->  Hash Join  (cost=7.51..2515.26 rows=4573 width=31) (actual time=0.125..26.586 rows=3743 loops=1)
+               Hash Cond: (e.date = h.date)
+               ->  Seq Scan on ecom_raw e  (cost=0.00..2054.01 rows=81601 width=15) (actual time=0.017..7.613 rows=81601 loops=1)
+               ->  Hash  (cost=7.28..7.28 rows=19 width=20) (actual time=0.088..0.089 rows=19 loops=1)
+                     Buckets: 1024  Batches: 1  Memory Usage: 10kB
+                     ->  Seq Scan on holiday_raw h  (cost=0.00..7.28 rows=19 width=20) (actual time=0.019..0.080 rows=19 loops=1)
+                           Filter: (year = '2011'::bpchar)
+                           Rows Removed by Filter: 323
+ Planning Time: 3.383 ms
+ Execution Time: 30.203 ms
+(16 rows)
+*/
 
 
