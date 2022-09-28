@@ -40,7 +40,7 @@ COPY ecom_raw FROM 'ecommerce_raw_data.csv' DELIMITER ',' CSV NULL 'NULL' HEADER
 
 
 -- load holiday data from CSV file
-COPY holiday_raw FROM 'E:\Projects\ecommerce-data-analysis\US Holiday Dates (2004-2021).csv' DELIMITER ',' CSV NULL 'NULL' HEADER;
+COPY holiday_raw FROM 'US Holiday Dates (2004-2021).csv' DELIMITER ',' CSV NULL 'NULL' HEADER;
 
 -- get the ecom ALL columns
 SELECT *
@@ -81,9 +81,17 @@ GROUP BY h.holiday, h.date
 ORDER BY total_revenue DESC;
 
 
--- performance
+-- performance for sum by join & group ecom & holiday
 explain analyze SELECT h.holiday, ROUND(SUM(e.Quantity * UnitPrice), 2) AS total_revenue
 FROM ecom_raw e LEFT JOIN holiday_raw h ON e.date = h.date 
 WHERE h.year = '2011'
 GROUP BY h.holiday, h.date
 ORDER BY total_revenue DESC;
+
+
+-- performance for selecting date from holiday table
+explain analyze 
+SELECT holiday, date
+FROM holiday_raw
+WHERE year = '2011';
+
