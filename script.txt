@@ -95,3 +95,10 @@ SELECT holiday, date
 FROM holiday_raw
 WHERE year = '2011';
 
+-- using regex for selecting date from holiday table ==> worst than = ''
+explain analyze 
+SELECT holiday, date
+FROM holiday_raw
+WHERE year ~ '2011';
+
+
