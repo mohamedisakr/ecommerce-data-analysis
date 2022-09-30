@@ -194,4 +194,24 @@ ORDER BY total_revenue DESC;
 (16 rows)
 */
 
+-- wrap select into view
+CREATE VIEW revenue_by_holiday AS
+SELECT h.holiday, ROUND(SUM(e.Quantity * UnitPrice), 2) AS total_revenue
+FROM ecom_raw e LEFT JOIN holiday_raw h ON e.date = h.date 
+WHERE h.year = '2011'
+GROUP BY h.holiday, h.date
+ORDER BY total_revenue DESC;
+
+
+-- select from the view 
+SELECT holiday, total_revenue
+FROM revenue_by_holiday
+
+
+
+
+
+
+
+
 
